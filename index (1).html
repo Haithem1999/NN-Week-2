@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Titanic EDA (Client-Side)</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:1rem;display:flex;flex-direction:column;gap:1.5rem;max-width:1100px}
+    h2{margin:.5rem 0}
+    section{border:1px solid #ddd;border-radius:6px;padding:1rem}
+    button{margin-right:.5rem;padding:.4rem .8rem;border:none;border-radius:4px;background:#0077cc;color:#fff;cursor:pointer}
+    button:disabled{background:#999;cursor:not-allowed}
+    table{border-collapse:collapse;width:100%}
+    th,td{border:1px solid #ccc;padding:.4rem;text-align:center}
+    canvas{max-width:100%;margin:1rem 0}
+    .flex{display:flex;flex-wrap:wrap;gap:1rem}
+    .w50{flex:1 1 48%}
+  </style>
+</head>
+<body>
+  <h1>Titanic Dataset – Interactive EDA</h1>
+
+  <section id="loadSection">
+    <h2>Data Load</h2>
+    <input type="file" id="trainFile" accept=".csv">
+    <input type="file" id="testFile"  accept=".csv">
+    <br><br>
+    <button id="loadBtn">Load Data</button>
+    <button id="runBtn" disabled>Run EDA</button>
+    <button id="exportBtn" disabled>Export</button>
+    <p id="loadStatus"></p>
+  </section>
+
+  <section id="overviewSection">
+    <h2>Merge &amp; Overview</h2>
+    <div id="shapeInfo"></div>
+    <h3>Head (first 5 rows)</h3>
+    <div id="headTable"></div>
+  </section>
+
+  <section id="missingSection">
+    <h2>Missing Values</h2>
+    <canvas id="missingChart"></canvas>
+  </section>
+
+  <section id="statsSection">
+    <h2>Stats Summary</h2>
+    <h3>Numeric</h3>
+    <div id="numStats"></div>
+    <h3>Categorical (grouped by Survived where applicable)</h3>
+    <div id="catStats"></div>
+  </section>
+
+  <section id="vizSection">
+    <h2>Visualizations</h2>
+    <div class="flex">
+      <canvas id="sexChart"    class="w50"></canvas>
+      <canvas id="pclassChart" class="w50"></canvas>
+      <canvas id="embChart"    class="w50"></canvas>
+      <canvas id="ageHist"     class="w50"></canvas>
+      <canvas id="fareHist"    class="w50"></canvas>
+    </div>
+  </section>
+
+  <section id="exportSection">
+    <h2>Export</h2>
+    <p>Use the <b>Export</b> button above after EDA is complete.</p>
+  </section>
+
+  <script type="module" src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</body>
+</html>
