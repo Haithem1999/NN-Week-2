@@ -2,161 +2,154 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CSV EDA Dashboard</title>
-  <!-- Bootstrap 5 CDN -->
+  <title>Interactive CSV EDA Dashboard</title>
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     #allDataContainer{max-height:400px;overflow:auto}
   </style>
 </head>
 <body class="bg-light">
-  <div class="container py-4">
-    <h1 class="mb-3">Interactive CSV EDA Dashboard</h1>
+<div class="container py-4">
+  <h1 class="mb-3">Interactive CSV EDA Dashboard</h1>
 
-    <!-- ACCORDION -->
-    <div class="accordion" id="edaAccordion">
+  <div class="accordion" id="edaAccordion">
 
-      <!-- DATA LOAD -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="loadHead">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#loadCollapse" aria-expanded="true">
-            1 · Data Load
-          </button>
-        </h2>
-        <div id="loadCollapse" class="accordion-collapse collapse show" data-bs-parent="#edaAccordion">
-          <div class="accordion-body">
-            <div class="mb-3">
-              <input id="csvInput" type="file" class="form-control" accept=".csv">
+    <!-- 1. Data Load -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="loadHead">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#loadCollapse" aria-expanded="true">
+          1 · Data Load
+        </button>
+      </h2>
+      <div id="loadCollapse" class="accordion-collapse collapse show" data-bs-parent="#edaAccordion">
+        <div class="accordion-body">
+
+          <input id="csvInput" type="file" class="form-control mb-3" accept=".csv">
+          <button id="loadBtn" class="btn btn-primary">Load CSV</button>
+
+          <div id="mergeSection" class="mt-4 d-none">
+            <input id="csvInput2" type="file" class="form-control mb-2" accept=".csv">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="addSource">
+              <label class="form-check-label" for="addSource">Add <code>Source</code> column (file name)</label>
             </div>
-            <button id="loadBtn" class="btn btn-primary me-2">Load CSV</button>
+            <button id="mergeBtn" class="btn btn-secondary">Merge with current</button>
+          </div>
 
-            <!-- Merge section appears after first load -->
-            <div id="mergeSection" class="mt-3 d-none">
-              <input id="csvInput2" type="file" class="form-control mb-2" accept=".csv">
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="addSource">
-                <label class="form-check-label" for="addSource">Add <code>Source</code> column (file name)</label>
-              </div>
-              <button id="mergeBtn" class="btn btn-secondary">Merge with current</button>
+          <p id="loadStatus" class="mt-3 text-muted"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Overview -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="overviewHead">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#overviewCollapse">
+          2 · Overview
+        </button>
+      </h2>
+      <div id="overviewCollapse" class="accordion-collapse collapse" data-bs-parent="#edaAccordion">
+        <div class="accordion-body">
+          <div id="shapeInfo" class="fw-semibold mb-3"></div>
+          <label for="previewSelect" class="form-label">Preview rows:</label>
+          <select id="previewSelect" class="form-select w-auto mb-3">
+            <option value="5" selected>First 5</option>
+            <option value="10">First 10</option>
+            <option value="20">First 20</option>
+            <option value="head">Head (50)</option>
+            <option value="tail">Tail (50)</option>
+            <option value="all">All (scroll)</option>
+          </select>
+          <div id="previewTable"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Missing -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="missingHead">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#missingCollapse">
+          3 · Missing Values
+        </button>
+      </h2>
+      <div id="missingCollapse" class="accordion-collapse collapse" data-bs-parent="#edaAccordion">
+        <div class="accordion-body">
+          <canvas id="missingChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Stats -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="statsHead">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#statsCollapse">
+          4 · Stats Summary
+        </button>
+      </h2>
+      <div id="statsCollapse" class="accordion-collapse collapse" data-bs-parent="#edaAccordion">
+        <div class="accordion-body">
+
+          <h5>Numeric Columns</h5>
+          <div id="numericStats" class="mb-4"></div>
+
+          <h5>Categorical Columns</h5>
+          <div class="row g-3 align-items-end mb-3">
+            <div class="col-md-6">
+              <select id="catSelect" class="form-select" multiple size="6"></select>
             </div>
-
-            <div id="loadStatus" class="mt-3 text-muted"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- OVERVIEW -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="overviewHead">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#overviewCollapse">
-            2 · Overview
-          </button>
-        </h2>
-        <div id="overviewCollapse" class="accordion-collapse collapse" data-bs-parent="#edaAccordion">
-          <div class="accordion-body">
-            <div id="shapeInfo" class="mb-3 fw-semibold"></div>
-
-            <label for="previewSelect" class="form-label">Preview rows:</label>
-            <select id="previewSelect" class="form-select w-auto mb-3">
-              <option value="5" selected>First 5</option>
-              <option value="10">First 10</option>
-              <option value="20">First 20</option>
-              <option value="head">Head ()</option>
-              <option value="tail">Tail ()</option>
-              <option value="all">All (scrollable)</option>
-            </select>
-
-            <div id="previewTable"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MISSING -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="missingHead">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#missingCollapse">
-            3 · Missing Values
-          </button>
-        </h2>
-        <div id="missingCollapse" class="accordion-collapse collapse" data-bs-parent="#edaAccordion">
-          <div class="accordion-body">
-            <canvas id="missingChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- STATS -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="statsHead">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#statsCollapse">
-            4 · Stats Summary
-          </button>
-        </h2>
-        <div id="statsCollapse" class="accordion-collapse collapse" data-bs-parent="#edaAccordion">
-          <div class="accordion-body">
-
-            <!-- Numeric -->
-            <h5>Numeric Columns</h5>
-            <div id="numericStats" class="mb-4"></div>
-
-            <!-- Categorical -->
-            <h5>Categorical Columns</h5>
-            <div class="row g-3 align-items-end mb-3">
-              <div class="col-md-6">
-                <select id="catSelect" class="form-select" multiple size="6"></select>
-              </div>
-              <div class="col-md-2">
-                <button id="catBtn" class="btn btn-primary">Run Categorical Stats</button>
-              </div>
-            </div>
-            <div id="categoricalStats"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- VISUALISATIONS -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="vizHead">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#vizCollapse">
-            5 · Visualisations
-          </button>
-        </h2>
-        <div id="vizCollapse" class="accordion-collapse collapse" data-bs-parent="#edaAccordion">
-          <div class="accordion-body">
-            <div class="row g-4">
-              <div class="col-md-6"><canvas id="sexChart"></canvas></div>
-              <div class="col-md-6"><canvas id="pclassChart"></canvas></div>
-              <div class="col-md-6"><canvas id="embChart"></canvas></div>
-              <div class="col-md-6"><canvas id="ageHist"></canvas></div>
-              <div class="col-md-6"><canvas id="fareHist"></canvas></div>
+            <div class="col-md-2">
+              <button id="catBtn" class="btn btn-primary">Run Categorical Stats</button>
             </div>
           </div>
+          <div id="categoricalStats"></div>
         </div>
       </div>
+    </div>
 
-      <!-- EXPORT -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="exportHead">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#exportCollapse">
-            6 · Export
-          </button>
-        </h2>
-        <div id="exportCollapse" class="accordion-collapse collapse" data-bs-parent="#edaAccordion">
-          <div class="accordion-body">
-            <button id="exportBtn" class="btn btn-success me-2">Download Merged CSV</button>
-            <button id="exportJSONBtn" class="btn btn-outline-success">Download Summary JSON</button>
+    <!-- 5. Visualisations -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="vizHead">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#vizCollapse">
+          5 · Visualisations
+        </button>
+      </h2>
+      <div id="vizCollapse" class="accordion-collapse collapse" data-bs-parent="#edaAccordion">
+        <div class="accordion-body">
+          <div class="row g-4">
+            <div class="col-md-6"><canvas id="sexChart"></canvas></div>
+            <div class="col-md-6"><canvas id="pclassChart"></canvas></div>
+            <div class="col-md-6"><canvas id="embChart"></canvas></div>
+            <div class="col-md-6"><canvas id="ageHist"></canvas></div>
+            <div class="col-md-6"><canvas id="fareHist"></canvas></div>
           </div>
         </div>
       </div>
+    </div>
 
-    </div><!-- /accordion -->
-  </div><!-- /container -->
+    <!-- 6. Export -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="exportHead">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#exportCollapse">
+          6 · Export
+        </button>
+      </h2>
+      <div id="exportCollapse" class="accordion-collapse collapse" data-bs-parent="#edaAccordion">
+        <div class="accordion-body">
+          <button id="exportBtn" class="btn btn-success me-2">Download Merged CSV</button>
+          <button id="exportJSONBtn" class="btn btn-outline-success">Download Summary JSON</button>
+        </div>
+      </div>
+    </div>
 
-  <!-- JS libs -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- App -->
-  <script type="module" src="app.js"></script>
+  </div><!-- accordion -->
+</div><!-- container -->
+
+<!-- libs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- app -->
+<script type="module" src="app.js"></script>
 </body>
 </html>
